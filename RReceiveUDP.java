@@ -9,7 +9,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	long modeParameter;
 	String filename;
 
-	public static void main(String[] args)
+	public RReceiveUDP()
 	{
 
 	}
