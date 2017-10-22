@@ -2,7 +2,7 @@ import java.net.DatagramPacket;
 import edu.utulsa.unet.UDPSocket; //import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class udpreceiver implements edu.utulsa.unet.RReceiveUDPI {
+public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	
 	int port = 32456;
 	int mode;

@@ -4,7 +4,7 @@ import edu.utulsa.unet.UDPSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-public class udpsender implements edu.utulsa.unet.RSendUDPI
+public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 {
 	static final String SERVER = "localhost";
 	static final int PORT = 32456;
@@ -16,7 +16,7 @@ public class udpsender implements edu.utulsa.unet.RSendUDPI
 	int localPort;
 	InetSocketAddress receiver;
 
-	public udpsender(){
+	public RSendUDP(){
 		mode = 0;
 		timeout = 100;
 		localPort = 32456;
