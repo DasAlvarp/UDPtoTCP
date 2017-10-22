@@ -4,7 +4,7 @@ import edu.utulsa.unet.UDPSocket;
 import java.net.InetAddress;
 
 public class udpsender {
-	static final String SERVER = "linux1.ens.utulsa.edu";
+	static final String SERVER = "localhost";
 	static final int PORT = 32456;
 
 	public static void main(String[] args)
