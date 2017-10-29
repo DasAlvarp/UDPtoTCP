@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
 import java.io.File;
+import java.nio.ByteBuffer;
 
 public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 {
@@ -108,9 +109,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 		try {
 			byte [][] buffer = makeBuffer();
 			UDPSocket socket = new UDPSocket(23456);
-			//DatagramSocket socket = new DatagramSocket(23456);
-			socket.send(new DatagramPacket(buffer[0], buffer[0].length,
- 				InetAddress.getByName(SERVER), PORT));
+			socket.send(new DatagramPacket(buffer[0], buffer[0].length, InetAddress.getByName(SERVER), PORT));
 			return true;
 		}
 		catch(Exception e)
@@ -126,22 +125,45 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			File thing = new File(filename);
 			Scanner ScanMan = new Scanner(thing);
 			long size = thing.length();
-			if(mode > 0){
-				long sectionNum = 0;//a long is 8 bits
-				int maxSize = 0;//tbd.
-				//an int is 4 bits.
-				//
-				System.exit(-1);//here for now so I don't have to worry about it.
-			}else{
-				byte [][] wholeBuffer = new byte[0][(int)size + 20];//20 because sectionNum+maxSize+mode. Wasting space, but in this case it doesn't really matter, it's literally ALL 0s if it's this mode.
-				int index = 20;
-				while(ScanMan.hasNext())
+			int buffSize = (int)Math.ceil((double)size / ((double)modeParameter - 20.0));
+			byte [][] wholeBuffer = new byte[buffSize][(int)modeParameter];//20 because sectionNum+maxSize+mode. Wasting space, but in this case it doesn't really matter, it's literally ALL 0s if it's this mode.
+			for(int index = 0; index < buffSize; index++){
+				//fist, let's get the mode in there
+				byte [] byteMode = ByteBuffer.allocate(4).putInt(mode).array();
+				for(int x = 0; x < 4; x++)
 				{
-					wholeBuffer[0][index] = ScanMan.nextByte();
-					index++;
+					wholeBuffer[index][x] = byteMode[x];
 				}
-				return wholeBuffer;
+				byte [] byteSize = ByteBuffer.allocate(8).putLong(modeParameter).array();
+				for(int x = 4; x < 12; x++)
+				{
+					wholeBuffer[index][x] = byteSize[x - 4];
+				}
+				byte [] indexNum = ByteBuffer.allocate(4).putInt(index).array();
+				for(int x = 12; x < 16; x++)
+				{
+					wholeBuffer[index][x] = indexNum[x - 12];
+				}
+				byte [] maxSize = ByteBuffer.allocate(4).putInt(buffSize).array();
+				for(int x = 16; x < 20; x++)
+				{
+					wholeBuffer[index][x] = indexNum[x - 16];
+				}
+				int count = 20;
+				//first few are the mode
+				//next few are size of 
+				while(count < modeParameter)
+				{
+					if(ScanMan.hasNext()){
+						wholeBuffer[index][count] = ScanMan.nextByte();
+					}else{
+						wholeBuffer[index][count] = (byte)0;
+					}
+					count++;
+				}
+				index++;
 			}
+			return wholeBuffer;
 		}catch(Exception e){
 			System.out.println("there was an error and my error detection sucks.");
 			System.exit(-1);

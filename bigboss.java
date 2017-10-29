@@ -8,7 +8,7 @@ public class bigboss{
 		sender.setTimeout(10000);
 		sender.setFilename("important.txt");
 		sender.setLocalPort(23456);
-		sender.setReceiver(new InetSocketAddress("172.17.34.56", 32456));
+		sender.setReceiver(new InetSocketAddress("localhost", 32456));
 		sender.sendFile();
 	}
 }
