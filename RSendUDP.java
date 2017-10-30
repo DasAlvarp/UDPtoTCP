@@ -3,8 +3,6 @@ import edu.utulsa.unet.UDPSocket;
 //import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Scanner;
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
