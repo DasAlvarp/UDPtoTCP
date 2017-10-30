@@ -6,6 +6,9 @@ import java.net.InetSocketAddress;
 import java.util.Scanner;
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 {
@@ -122,13 +125,15 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 	private byte[][] makeBuffer()
 	{
 		try{
-			File thing = new File(filename);
-			Scanner ScanMan = new Scanner(thing);
-			long size = thing.length();
+			Path path = Paths.get(filename);
+			byte[] file = Files.readAllBytes(path);
+			int size = file.length;
 			int buffSize = (int)Math.ceil((double)size / ((double)modeParameter - 20.0));
 			byte [][] wholeBuffer = new byte[buffSize][(int)modeParameter];//20 because sectionNum+maxSize+mode. Wasting space, but in this case it doesn't really matter, it's literally ALL 0s if it's this mode.
+			int fileCount = 0;
 			for(int index = 0; index < buffSize; index++){
 				//fist, let's get the mode in there
+				//first 20 spaces are added
 				byte [] byteMode = ByteBuffer.allocate(4).putInt(mode).array();
 				for(int x = 0; x < 4; x++)
 				{
@@ -150,12 +155,13 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 					wholeBuffer[index][x] = indexNum[x - 16];
 				}
 				int count = 20;
-				//first few are the mode
-				//next few are size of 
+				//fill up rest of message
 				while(count < modeParameter)
 				{
-					if(ScanMan.hasNext()){
-						wholeBuffer[index][count] = ScanMan.nextByte();
+					if(fileCount < size){
+						//add byte to array
+						wholeBuffer[index][count] = file[fileCount];
+						fileCount++;
 					}else{
 						wholeBuffer[index][count] = (byte)0;
 					}
@@ -166,6 +172,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			return wholeBuffer;
 		}catch(Exception e){
 			System.out.println("there was an error and my error detection sucks.");
+			e.printStackTrace();
 			System.exit(-1);
 		}
 		return null;
