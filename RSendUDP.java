@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.util.Time;
 
 public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 {
@@ -110,7 +111,25 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 		try {
 			byte [][] buffer = makeBuffer();
 			UDPSocket socket = new UDPSocket(23456);
-			socket.send(new DatagramPacket(buffer[0], buffer[0].length, InetAddress.getByName(SERVER), PORT));
+			boolean shouldSend = true;
+			int packetIndex = 0;
+			int maxNum = buffer.length;
+			while(shouldSend)
+			{
+				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), PORT));
+				float time = 0;
+				float lastTime = System.currentTimeMillis();
+				float curTime = System.currentTimeMillis();
+				float deltaTime = 0;
+				boolean acked = false;
+				while(deltaTime < timeout && !acked)
+				{
+					curTime = System.currentTimeMillis();
+
+					deltaTime += curTime - lastTime;
+					lastTime = curTime;
+				}
+			}
 			return true;
 		}
 		catch(Exception e)
@@ -118,6 +137,15 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	private int readAck(UDPSocket socket)
+	{
+		if(socket.ready())
+		{
+			return 1;
+		}
+		return -1;
 	}
 
 	private byte[][] makeBuffer()

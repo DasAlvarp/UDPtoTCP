@@ -66,8 +66,22 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 
 	public boolean receiveFile()
 	{
+		if(mode == 0)
+		{
+			return recieveStopAndWait();
+		}
+		else
+		{
+			return recieveWindow();
+		}
+	}
+
+	private boolean recieveStopAndWait()
+	{
 		try
 		{
+			int startPacket = 0;
+
 			byte [] buffer = new byte[11];
 			UDPSocket socket = new UDPSocket(port);
 			DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
