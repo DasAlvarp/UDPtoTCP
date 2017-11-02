@@ -3,7 +3,7 @@ import java.net.InetSocketAddress;
 public class bigboss{
 	public static void main(String[] args){
 		RSendUDP sender = new RSendUDP();
-		sender.setMode(1);
+		sender.setMode(0);
 		sender.setModeParameter(512);
 		sender.setTimeout(10000);
 		sender.setFilename("important.txt");

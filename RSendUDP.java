@@ -110,13 +110,13 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 	{
 		try {
 			byte [][] buffer = makeBuffer();
-			UDPSocket socket = new UDPSocket(23456);
+			UDPSocket socket = new UDPSocket(port);
 			boolean shouldSend = true;
 			int packetIndex = 0;
 			int maxNum = buffer.length;
 			while(shouldSend)
 			{
-				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), PORT));
+				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), port ));
 				float time = 0;
 				float lastTime = System.currentTimeMillis();
 				float curTime = System.currentTimeMillis();
