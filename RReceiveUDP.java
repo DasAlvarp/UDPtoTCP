@@ -131,8 +131,6 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				socket.receive(packet);
 				InetAddress client = packet.getAddress();
 				System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
-				byte[] ack = sendAck(0, 0);
-				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
 				
 				//figuring out if I'm done reading.
 				byte[] indexArr = new byte[4];
@@ -146,6 +144,8 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				int index = wrap.getInt();
 				wrap = ByteBuffer.wrap(buffZiseArr);
 				int buffsize = wrap.getInt();
+				byte[] ack = sendAck(0, index % 2);
+				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
 				if(index == buffsize){
 					stillReceiving = false;
 				}

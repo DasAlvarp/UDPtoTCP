@@ -124,7 +124,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 					socket.setSoTimeout((int)timeout);
 					socket.receive(packet);
 					System.out.println("I got an ack!" + packetIndex +", " + ack[4]);
-					if(ack[4] == (byte)((packetIndex) % 2))
+					if((int)ack[4] == (packetIndex % 2))
 					{
 						if(packetIndex == maxNum)
 						{
@@ -153,6 +153,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			byte[] file = Files.readAllBytes(path);
 			int size = file.length;
 			int buffSize = (int)Math.ceil((double)size / ((double)modeParameter - 20.0));
+			System.out.println(buffSize);
 			byte [][] wholeBuffer = new byte[buffSize][(int)modeParameter];//20 because sectionNum+maxSize+mode. Wasting space, but in this case it doesn't really matter, it's literally ALL 0s if it's this mode.
 			int fileCount = 0;
 			for(int index = 0; index < buffSize; index++){
@@ -188,10 +189,10 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 						fileCount++;
 					}else{
 						wholeBuffer[index][count] = (byte)0;
+						System.out.println("whoop");
 					}
 					count++;
 				}
-				index++;
 			}
 			return wholeBuffer;
 		}catch(Exception e){
