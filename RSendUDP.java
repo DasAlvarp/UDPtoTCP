@@ -123,7 +123,8 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 				try{
 					socket.setSoTimeout((int)timeout);
 					socket.receive(packet);
-					if(ack[4] == (byte)(packetIndex + 1))
+					System.out.println("I got an ack!" + packetIndex +", " + ack[4]);
+					if(ack[4] == (byte)((packetIndex) % 2))
 					{
 						if(packetIndex == maxNum)
 						{
