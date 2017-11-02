@@ -128,6 +128,8 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 			socket.receive(packet);
 			InetAddress client = packet.getAddress();
 			System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
+			byte[] ack = sendAck(0, 0);
+			socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName("localhost"), packet.getPort()));
 			return true;
 		}
 		catch(Exception e)

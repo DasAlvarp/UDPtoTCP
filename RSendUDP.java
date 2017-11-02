@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
-import java.util.Time;
 
 public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 {
@@ -110,24 +109,27 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 	{
 		try {
 			byte [][] buffer = makeBuffer();
-			UDPSocket socket = new UDPSocket(port);
+			UDPSocket socket = new UDPSocket(localPort);
 			boolean shouldSend = true;
 			int packetIndex = 0;
 			int maxNum = buffer.length;
 			while(shouldSend)
 			{
-				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), port ));
-				float time = 0;
-				float lastTime = System.currentTimeMillis();
-				float curTime = System.currentTimeMillis();
-				float deltaTime = 0;
+				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), PORT));
 				boolean acked = false;
-				while(deltaTime < timeout && !acked)
-				{
-					curTime = System.currentTimeMillis();
 
-					deltaTime += curTime - lastTime;
-					lastTime = curTime;
+				byte[] ack = new byte[5];
+				DatagramPacket packet = new DatagramPacket(ack, ack.length);
+				try{
+					socket.setSoTimeout((int)timeout);
+					socket.receive(packet);
+					if(ack[4] == (byte)1)
+					{
+						shouldSend = false;
+						acked = true;
+					}
+				}catch(Exception e){
+					System.out.println("Ack not recieved. Sending again.");
 				}
 			}
 			return true;
@@ -137,15 +139,6 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			e.printStackTrace();
 			return false;
 		}
-	}
-
-	private int readAck(UDPSocket socket)
-	{
-		if(socket.ready())
-		{
-			return 1;
-		}
-		return -1;
 	}
 
 	private byte[][] makeBuffer()
