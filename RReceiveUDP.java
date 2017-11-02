@@ -122,7 +122,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		{
 			int startPacket = 0;
 
-			byte [] buffer = new byte[11];
+			byte [] buffer = new byte[(int)modeParameter];
 			UDPSocket socket = new UDPSocket(port);
 			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 			socket.receive(packet);
