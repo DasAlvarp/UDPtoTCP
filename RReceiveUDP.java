@@ -124,12 +124,32 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 
 			byte [] buffer = new byte[(int)modeParameter];
 			UDPSocket socket = new UDPSocket(port);
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-			socket.receive(packet);
-			InetAddress client = packet.getAddress();
-			System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
-			byte[] ack = sendAck(0, 0);
-			socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
+			boolean stillReceiving = true;
+			while(stillReceiving)
+			{
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				socket.receive(packet);
+				InetAddress client = packet.getAddress();
+				System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
+				byte[] ack = sendAck(0, 0);
+				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
+				
+				//figuring out if I'm done reading.
+				byte[] indexArr = new byte[4];
+				byte[] buffZiseArr = new byte[4];
+				for(int x = 0; x < 4; x++)
+				{
+					indexArr[x] = buffer[x + 12];
+					buffZiseArr[x] = buffer[x + 16];
+				}
+				ByteBuffer wrap = ByteBuffer.wrap(indexArr);
+				int index = wrap.getInt();
+				wrap = ByteBuffer.wrap(buffZiseArr);
+				int buffsize = wrap.getInt();
+				if(index == buffsize){
+					stillReceiving = false;
+				}
+			}
 			return true;
 		}
 		catch(Exception e)

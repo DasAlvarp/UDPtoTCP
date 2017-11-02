@@ -123,10 +123,14 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 				try{
 					socket.setSoTimeout((int)timeout);
 					socket.receive(packet);
-					if(ack[4] == (byte)0)
+					if(ack[4] == (byte)(packetIndex + 1))
 					{
-						shouldSend = false;
+						if(packetIndex == maxNum)
+						{
+							shouldSend = false;
+						}
 						acked = true;
+						packetIndex++;
 					}
 				}catch(Exception e){
 					System.out.println("Ack not recieved. Sending again.");
