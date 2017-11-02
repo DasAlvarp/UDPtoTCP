@@ -123,10 +123,11 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 				try{
 					socket.setSoTimeout((int)timeout);
 					socket.receive(packet);
-					System.out.println("I got an ack!" + packetIndex +", " + ack[4]);
+					System.out.println("I got an ack!" + packetIndex +", " + ack[4] + ", " + maxNum);
 					if((int)ack[4] == (packetIndex % 2))
 					{
-						if(packetIndex == maxNum)
+						System.out.println("it matched!");
+						if(packetIndex == maxNum - 1)
 						{
 							shouldSend = false;
 						}
@@ -177,7 +178,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 				byte [] maxSize = ByteBuffer.allocate(4).putInt(buffSize).array();
 				for(int x = 16; x < 20; x++)
 				{
-					wholeBuffer[index][x] = indexNum[x - 16];
+					wholeBuffer[index][x] = maxSize[x - 16];
 				}
 				int count = 20;
 				//fill up rest of message
@@ -189,7 +190,6 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 						fileCount++;
 					}else{
 						wholeBuffer[index][count] = (byte)0;
-						System.out.println("whoop");
 					}
 					count++;
 				}

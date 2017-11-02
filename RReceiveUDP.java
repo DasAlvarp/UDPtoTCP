@@ -142,11 +142,13 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				}
 				ByteBuffer wrap = ByteBuffer.wrap(indexArr);
 				int index = wrap.getInt();
-				wrap = ByteBuffer.wrap(buffZiseArr);
-				int buffsize = wrap.getInt();
+				ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
+				int buffsize = wrap2.getInt();
 				byte[] ack = sendAck(0, index % 2);
 				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
-				if(index == buffsize){
+				System.out.println(index + ", " + buffsize);
+				if(index == buffsize - 1){
+					System.out.println(buffsize);
 					stillReceiving = false;
 				}
 			}
