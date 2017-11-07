@@ -107,6 +107,60 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 
 	public boolean sendFile()
 	{
+		if(mode == 0)
+		{
+			return sendStopAndWait();
+		}
+		else
+		{
+			return sendWindow();
+		}
+	}
+
+	private boolean sendStopAndWait()
+	{
+		try {
+			byte [][] buffer = makeBuffer();
+			UDPSocket socket = new UDPSocket(localPort);
+			boolean shouldSend = true;
+			int packetIndex = 0;
+			int maxNum = buffer.length;
+			while(shouldSend)
+			{
+				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), PORT));
+				boolean acked = false;
+
+				byte[] ack = new byte[5];
+				DatagramPacket packet = new DatagramPacket(ack, ack.length);
+				try{
+					socket.setSoTimeout((int)timeout);
+					socket.receive(packet);
+					System.out.println("I got an ack!" + packetIndex +", " + ack[4] + ", " + maxNum);
+					if((int)ack[4] == (packetIndex % 2))
+					{
+						System.out.println("it matched!");
+						if(packetIndex == maxNum - 1)
+						{
+							shouldSend = false;
+						}
+						acked = true;
+						packetIndex++;
+					}
+				}catch(Exception e){
+					System.out.println("Ack not recieved. Sending again.");
+				}
+			}
+			return true;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	private boolean sendWindow()
+	{
 		try {
 			byte [][] buffer = makeBuffer();
 			UDPSocket socket = new UDPSocket(localPort);
@@ -160,25 +214,20 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			for(int index = 0; index < buffSize; index++){
 				//fist, let's get the mode in there
 				//first 20 spaces are added
-				byte [] byteMode = ByteBuffer.allocate(4).putInt(mode).array();
-				for(int x = 0; x < 4; x++)
-				{
-					wholeBuffer[index][x] = byteMode[x];
-				}
 				byte [] byteSize = ByteBuffer.allocate(8).putLong(modeParameter).array();
 				for(int x = 4; x < 12; x++)
 				{
 					wholeBuffer[index][x] = byteSize[x - 4];
 				}
+				//throw all the ints here
+				byte [] byteMode = ByteBuffer.allocate(4).putInt(mode).array();
 				byte [] indexNum = ByteBuffer.allocate(4).putInt(index).array();
-				for(int x = 12; x < 16; x++)
-				{
-					wholeBuffer[index][x] = indexNum[x - 12];
-				}
 				byte [] maxSize = ByteBuffer.allocate(4).putInt(buffSize).array();
-				for(int x = 16; x < 20; x++)
+				for(int x = 0; x < 4; x++)
 				{
-					wholeBuffer[index][x] = maxSize[x - 16];
+					wholeBuffer[index][x] = byteMode[x];
+					wholeBuffer[index][x + 12] = indexNum[x];
+					wholeBuffer[index][x + 16] = maxSize[x];
 				}
 				int count = 20;
 				//fill up rest of message

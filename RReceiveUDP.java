@@ -111,8 +111,49 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	//reading with sliding window
 	private boolean recieveWindow()
 	{
-		//stub
-		return true;
+		try
+		{
+			int startPacket = 0;
+
+			UDPSocket[] socket = new UDPSocket(port);
+			byte [] window = new byte[mode][modeParameter];
+			boolean stillReceiving = true;
+			int floor = 0;
+			int ceil = floor + mode;
+			while(stillReceiving)
+			{
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+				socket.receive(packet);
+				InetAddress client = packet.getAddress();
+				System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
+				
+				//figuring out if I'm done reading.
+				byte[] indexArr = new byte[4];
+				byte[] buffZiseArr = new byte[4];
+				for(int x = 0; x < 4; x++)
+				{
+					indexArr[x] = buffer[x + 12];
+					buffZiseArr[x] = buffer[x + 16];
+				}
+				ByteBuffer wrap = ByteBuffer.wrap(indexArr);
+				int index = wrap.getInt();
+				ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
+				int buffsize = wrap2.getInt();
+				byte[] ack = sendAck(mode, index);
+				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
+				System.out.println(index + ", " + buffsize);
+				if(index == buffsize - 1){
+					System.out.println(buffsize);
+					stillReceiving = false;
+				}
+			}
+			return true;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	//reading what I get
