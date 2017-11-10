@@ -113,38 +113,76 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	{
 		try
 		{
-			int startPacket = 0;
 
-			UDPSocket[] socket = new UDPSocket(port);
-			byte [] window = new byte[mode][modeParameter];
+			UDPSocket socket = new UDPSocket(port);
+			byte [][] window = new byte[mode][(int)modeParameter];
 			boolean stillReceiving = true;
 			int floor = 0;
 			int ceil = floor + mode;
+			DatagramPacket samplePacket = null;
 			while(stillReceiving)
 			{
-				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-				socket.receive(packet);
-				InetAddress client = packet.getAddress();
-				System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
-				
-				//figuring out if I'm done reading.
-				byte[] indexArr = new byte[4];
-				byte[] buffZiseArr = new byte[4];
-				for(int x = 0; x < 4; x++)
+				int maxTop = floor + mode;
+				int curFloor = floor;
+				for(int x = floor; x < maxTop; x++)
 				{
-					indexArr[x] = buffer[x + 12];
-					buffZiseArr[x] = buffer[x + 16];
+					try
+					{
+						DatagramPacket packet = new DatagramPacket(window[x], window[x].length);
+						samplePacket = packet;
+						//don't want a timeout for first packet, but the rest make sense.
+						if(x != curFloor + 1){
+							socket.setSoTimeout(100);//recieve up to 3 packets, but need some kind of time out mechanic
+						}
+						socket.receive(packet);
+						InetAddress client = packet.getAddress();
+						System.out.println("Received'" + new String(window[x]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
+		
+						//figuring out if I'm done reading.
+						byte[] indexArr = new byte[4];
+						byte[] buffZiseArr = new byte[4];
+						for(int y = 0; y < y; x++)
+						{
+							indexArr[y] = window[x][y + 12];
+							buffZiseArr[y] = window[x][y + 16];
+						}
+						ByteBuffer wrap = ByteBuffer.wrap(indexArr);
+						int index = wrap.getInt();
+						ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
+						int buffsize = wrap2.getInt();
+						//can't recieve more than mode packets
+						if(maxTop > buffsize)
+						{
+							maxTop = buffsize;
+						}
+
+						//increment floor if we've recieved the next packet.
+						if(index == floor + 1)
+						{
+							floor++;
+						}
+
+						if(index == buffsize - 1){
+							System.out.println(buffsize);
+							stillReceiving = false;
+						}
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
-				ByteBuffer wrap = ByteBuffer.wrap(indexArr);
-				int index = wrap.getInt();
-				ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
-				int buffsize = wrap2.getInt();
-				byte[] ack = sendAck(mode, index);
-				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
-				System.out.println(index + ", " + buffsize);
-				if(index == buffsize - 1){
-					System.out.println(buffsize);
-					stillReceiving = false;
+				//floor sent as ijndex, send next #mode (going to pretend that out sliding window is size 3)
+				byte[] ack = sendAck(mode, floor);
+				if(samplePacket != null)
+				{
+					socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(samplePacket.getAddress().getHostAddress()), samplePacket.getPort()));
+					System.out.println(mode + ", " + floor);
+				}
+				else
+				{
+					System.out.println("Send failed.");
+					System.exit(1);
 				}
 			}
 			return true;
