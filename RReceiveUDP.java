@@ -168,7 +168,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						curFloor = floor;
 					}
 				}
-				System.out.println("did a loop");
+				System.out.println("did a loop " + floor + ", " + maxTop);
 				//floor sent as ijndex, send next #mode (going to pretend that out sliding window is size 3)
 				byte[] ack = sendAck(mode, floor + 1);
 				if(samplePacket != null)
