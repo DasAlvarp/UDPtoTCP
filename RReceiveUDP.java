@@ -113,7 +113,6 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	{
 		try
 		{
-
 			UDPSocket socket = new UDPSocket(port);
 			byte [][] window = new byte[mode][(int)modeParameter];
 			boolean stillReceiving = true;
@@ -128,7 +127,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				{
 					try
 					{
-						DatagramPacket packet = new DatagramPacket(window[x], window[x].length);
+						DatagramPacket packet = new DatagramPacket(window[x - floor], window[x - floor].length);
 						samplePacket = packet;
 						//don't want a timeout for first packet, but the rest make sense.
 						if(x != curFloor){
@@ -136,35 +135,36 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						}
 						socket.receive(packet);
 						InetAddress client = packet.getAddress();
-						System.out.println("Received'" + new String(window[x]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
+						System.out.println("Received'" + new String(window[x - floor]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
 		
 						//figuring out if I'm done reading.
 						byte[] indexArr = new byte[4];
 						byte[] buffZiseArr = new byte[4];
 						for(int y = 0; y < 4; y++)
 						{
-							indexArr[y] = window[x][y + 12];
-							buffZiseArr[y] = window[x][y + 16];
+							indexArr[y] = window[x - floor][y + 12];
+							buffZiseArr[y] = window[x - floor][y + 16];
 						}
 						ByteBuffer wrap = ByteBuffer.wrap(indexArr);
 						int index = wrap.getInt();
 						ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
 						int buffsize = wrap2.getInt();
 						//can't recieve more than mode packets
-						if(maxTop > buffsize)
+						if(maxTop > buffsize + 1)
 						{
-							maxTop = buffsize;
+							maxTop = buffsize + 1;
 						}
 
 						//increment floor if we've recieved the next packet.
-						if(index == floor + 1)
+						if(index == floor)
 						{
 							floor++;
 						}
 
-						if(index == buffsize - 1){
+						if(floor == buffsize){
 							System.out.println(buffsize);
 							stillReceiving = false;
+							break;
 						}
 					}
 					catch(Exception e)
