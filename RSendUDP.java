@@ -165,11 +165,11 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			byte [][] buffer = makeBuffer();
 			UDPSocket socket = new UDPSocket(localPort);
 			boolean shouldSend = true;
-			int packetIndex = 0;
+			int packetIndex = 0;//packet we're sending. 
 			int maxNum = buffer.length;
 			while(shouldSend)
 			{
-				for(int x = packetIndex; x < (packetIndex + mode < maxNum?packetIndex + mode:maxNum); x++)
+				for(int x = packetIndex; x < (packetIndex + mode > maxNum?packetIndex + mode:maxNum); x++)
 				{
 					socket.send(new DatagramPacket(buffer[x], buffer[x].length, InetAddress.getByName(SERVER), PORT));
 				}

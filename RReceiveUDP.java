@@ -95,13 +95,10 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		{
 			byte[] returnMan = new byte[8];
 			byte[] byteMode = ByteBuffer.allocate(4).putInt(mode).array();
-			for(int x = 0; x < 4; x++)
-			{
-				returnMan[x] = byteMode[x];
-			}
 			byte[] windowNum = ByteBuffer.allocate(4).putInt(pNum).array();
 			for(int x = 0; x < 4; x++)
 			{
+				returnMan[x] = byteMode[x];
 				returnMan[x + 4] = windowNum[x];
 			}
 			return returnMan;
@@ -117,17 +114,16 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 			byte [][] window = new byte[mode][(int)modeParameter];
 			boolean stillReceiving = true;
 			int floor = 0;
-			int ceil = floor + mode;
 			DatagramPacket samplePacket = null;
+			int maxTop = floor + mode;
 			while(stillReceiving)
 			{
-				int maxTop = floor + mode;
 				int curFloor = floor;
-				for(int x = floor; x < maxTop; x++)
+				for(int x = curFloor; (x < curFloor + mode && x <= maxTop); x++)
 				{
 					try
 					{
-						DatagramPacket packet = new DatagramPacket(window[x - floor], window[x - floor].length);
+						DatagramPacket packet = new DatagramPacket(window[x - curFloor], window[x - curFloor].length);
 						samplePacket = packet;
 						//don't want a timeout for first packet, but the rest make sense.
 						if(x != curFloor){
@@ -135,25 +131,23 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						}
 						socket.receive(packet);
 						InetAddress client = packet.getAddress();
-						System.out.println("Received'" + new String(window[x - floor]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
+						System.out.println("Received'" + new String(window[x - curFloor]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
 		
 						//figuring out if I'm done reading.
 						byte[] indexArr = new byte[4];
 						byte[] buffZiseArr = new byte[4];
 						for(int y = 0; y < 4; y++)
 						{
-							indexArr[y] = window[x - floor][y + 12];
-							buffZiseArr[y] = window[x - floor][y + 16];
+							indexArr[y] = window[x - curFloor][y + 12];
+							buffZiseArr[y] = window[x - curFloor][y + 16];
 						}
 						ByteBuffer wrap = ByteBuffer.wrap(indexArr);
 						int index = wrap.getInt();
 						ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
 						int buffsize = wrap2.getInt();
 						//can't recieve more than mode packets
-						if(maxTop > buffsize + 1)
-						{
-							maxTop = buffsize + 1;
-						}
+						
+						maxTop = buffsize;
 
 						//increment floor if we've recieved the next packet.
 						if(index == floor)
@@ -169,11 +163,14 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 					}
 					catch(Exception e)
 					{
+						System.out.println("timed out");
 						e.printStackTrace();
+						curFloor = floor;
 					}
 				}
+				System.out.println("did a loop");
 				//floor sent as ijndex, send next #mode (going to pretend that out sliding window is size 3)
-				byte[] ack = sendAck(mode, floor);
+				byte[] ack = sendAck(mode, floor + 1);
 				if(samplePacket != null)
 				{
 					socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(samplePacket.getAddress().getHostAddress()), samplePacket.getPort()));
