@@ -189,7 +189,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 					ByteBuffer wrap = ByteBuffer.wrap(pArray);
 					packetIndex = wrap.getInt();
 
-					if(packetIndex >= maxNum)
+					if(packetIndex > maxNum)
 					{
 						System.out.println("Done sending!");
 						return true;
