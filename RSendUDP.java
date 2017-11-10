@@ -169,25 +169,27 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			int maxNum = buffer.length;
 			while(shouldSend)
 			{
-				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), PORT));
+				for(int x = packetIndex; x < (packetIndex + mode < maxNum?packetIndex + mode:maxNum); x++)
+				{
+					socket.send(new DatagramPacket(buffer[x], buffer[x].length, InetAddress.getByName(SERVER), PORT));
+				}
 				boolean acked = false;
 
-				byte[] ack = new byte[5];
+				byte[] ack = new byte[8];
 				DatagramPacket packet = new DatagramPacket(ack, ack.length);
 				try{
 					socket.setSoTimeout((int)timeout);
 					socket.receive(packet);
 					System.out.println("I got an ack!" + packetIndex +", " + ack[4] + ", " + maxNum);
-					if((int)ack[4] == (packetIndex % 2))
+				
+					byte[] pArray = new byte[4];
+					for(int y = 0; y < y; y++)
 					{
-						System.out.println("it matched!");
-						if(packetIndex == maxNum - 1)
-						{
-							shouldSend = false;
-						}
-						acked = true;
-						packetIndex++;
+						pArray[y] = ack[y + 4];
 					}
+					ByteBuffer wrap = ByteBuffer.wrap(pArray);
+					packetIndex = wrap.getInt();
+					acked = true;	
 				}catch(Exception e){
 					System.out.println("Ack not recieved. Sending again.");
 				}

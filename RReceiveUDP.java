@@ -131,7 +131,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						DatagramPacket packet = new DatagramPacket(window[x], window[x].length);
 						samplePacket = packet;
 						//don't want a timeout for first packet, but the rest make sense.
-						if(x != curFloor + 1){
+						if(x != curFloor){
 							socket.setSoTimeout(100);//recieve up to 3 packets, but need some kind of time out mechanic
 						}
 						socket.receive(packet);
@@ -141,7 +141,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						//figuring out if I'm done reading.
 						byte[] indexArr = new byte[4];
 						byte[] buffZiseArr = new byte[4];
-						for(int y = 0; y < y; x++)
+						for(int y = 0; y < 4; y++)
 						{
 							indexArr[y] = window[x][y + 12];
 							buffZiseArr[y] = window[x][y + 16];
