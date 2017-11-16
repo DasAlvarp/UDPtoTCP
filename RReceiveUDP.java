@@ -121,6 +121,11 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				int curFloor = floor;
 				for(int x = curFloor; (x < curFloor + mode && x <= maxTop); x++)
 				{
+					int []recieved = new int[mode];
+					for(int y = 0; y < mode; y++)
+					{
+						recieved[y] = -1;
+					}
 					try
 					{
 						DatagramPacket packet = new DatagramPacket(window[x - curFloor], window[x - curFloor].length);
@@ -145,17 +150,17 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						int index = wrap.getInt();
 						ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
 						int buffsize = wrap2.getInt();
-						//can't recieve more than mode packets
 						
+						//every time we get one, put it in the recieved array.
+						recieved[x - curFloor] = index;
+
+						//can't recieve more than mode packet
 						maxTop = buffsize;
 
-						//increment floor if we've recieved the next packet.
-						if(index == floor)
-						{
-							floor++;
-						}
-
-						if(floor == buffsize){
+						//increment floor if we've recieved the next packet, plus process the array
+						floor = getFloor(recieved, mode, index);
+						
+						if(floor > buffsize){
 							System.out.println(buffsize);
 							stillReceiving = false;
 							break;
@@ -164,8 +169,6 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 					catch(Exception e)
 					{
 						System.out.println("timed out");
-						e.printStackTrace();
-						curFloor = floor;
 					}
 				}
 				System.out.println("did a loop " + floor + ", " + maxTop);
@@ -189,6 +192,38 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	private int getFloor(int[] arr, int size, int index)
+	{
+		//first, get the lowest that isn't -1
+		int temp = 2147483647;
+		for(int x = 0; x < size; x++)
+		{
+			if(temp > arr[x] && arr[x] <= index && arr[x] != -1)
+			{
+				temp = arr[x];
+			}
+		}
+
+		//now that we've gotten the lowest:
+		boolean noNew = false;
+		while(!noNew)
+		{
+			noNew = true;
+			for(int x = 0; x < size; x++)
+			{
+				if(arr[size] == temp + 1)
+				{
+					noNew = false;
+					temp++;
+				}
+			}
+		}
+		if(temp == -1)
+			return index;
+		else
+			return temp;
 	}
 
 	//reading what I get
