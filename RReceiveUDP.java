@@ -177,7 +177,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				if(samplePacket != null)
 				{
 					socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(samplePacket.getAddress().getHostAddress()), samplePacket.getPort()));
-					System.out.println(mode + ", " + floor);
+					//System.out.println(mode + ", " + floor);
 				}
 				else
 				{
@@ -200,7 +200,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		int temp = 2147483647;
 		for(int x = 0; x < size; x++)
 		{
-			if(temp > arr[x] && arr[x] <= index && arr[x] != -1)
+			if(temp >= arr[x] && arr[x] <= index && arr[x] != -1)
 			{
 				temp = arr[x];
 			}
