@@ -179,7 +179,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 				try{
 					socket.setSoTimeout((int)timeout);
 					socket.receive(packet);
-					System.out.println("\nI got an ack!" + packetIndex +", " + ack[7] + ", " + maxNum + "\n\n");
+					System.out.println("\nI got an ack!" + packetIndex + ", " + ack[7] + ", " + maxNum + "\n\n");
 
 					byte[] pArray = new byte[4];
 					for(int y = 0; y < 4; y++)

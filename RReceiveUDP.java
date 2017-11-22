@@ -198,10 +198,14 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	{
 		//first, get the lowest that isn't -1
 		int temp = 2147483647;
+		int continuityTracker = index;
 		for(int x = 0; x < size; x++)
 		{
-			if(temp >= arr[x] && arr[x] <= index && arr[x] != -1)
+			if(temp >= arr[x] && arr[x] <= continuityTracker && arr[x] != -1)
 			{
+				if(arr[x] == continuityTracker){
+					continuityTracker = arr[x] + 1;
+				}
 				temp = arr[x];
 			}
 		}
