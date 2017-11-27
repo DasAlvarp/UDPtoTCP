@@ -229,13 +229,15 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 				byte [] byteMode = ByteBuffer.allocate(4).putInt(mode).array();
 				byte [] indexNum = ByteBuffer.allocate(4).putInt(index).array();
 				byte [] maxSize = ByteBuffer.allocate(4).putInt(buffSize).array();
+				byte [] fileSize = ByteBuffer.allocate(4).putInt(size).array();
 				for(int x = 0; x < 4; x++)
 				{
 					wholeBuffer[index][x] = byteMode[x];
 					wholeBuffer[index][x + 12] = indexNum[x];
 					wholeBuffer[index][x + 16] = maxSize[x];
+					wholeBuffer[index][x + 20] = fileSize[x];
 				}
-				int count = 20;
+				int count = 24;
 				//fill up rest of message
 				while(count < modeParameter)
 				{

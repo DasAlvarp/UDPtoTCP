@@ -1,7 +1,16 @@
 import java.net.DatagramPacket;
 import edu.utulsa.unet.UDPSocket; //import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 
 public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	
@@ -9,6 +18,8 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	int mode;
 	long modeParameter;
 	String filename;
+	byte[] file;
+	byte[] fileBits;
 
 	public RReceiveUDP()
 	{
@@ -233,6 +244,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	//reading what I get
 	private boolean recieveStopAndWait()
 	{
+		fileBits = new byte[4];
 		try
 		{
 			int startPacket = 0;
@@ -250,19 +262,28 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				//figuring out if I'm done reading.
 				byte[] indexArr = new byte[4];
 				byte[] buffZiseArr = new byte[4];
+				byte[] totalLength = new byte[4];
 				for(int x = 0; x < 4; x++)
 				{
 					indexArr[x] = buffer[x + 12];
 					buffZiseArr[x] = buffer[x + 16];
+					totalLength[x] = buffer[x + 20];
 				}
+
 				ByteBuffer wrap = ByteBuffer.wrap(indexArr);
 				int index = wrap.getInt();
 				ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
 				int buffsize = wrap2.getInt();
+				ByteBuffer wrap3 = ByteBuffer.wrap(totalLength);
+				int msgSize = wrap3.getInt();
+
+				updateFile(buffer);
+
 				byte[] ack = sendAck(0, index % 2);
 				socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(packet.getAddress().getHostAddress()), packet.getPort()));
 				System.out.println(index + ", " + buffsize);
 				if(index == buffsize - 1){
+					makeFile();
 					System.out.println(buffsize);
 					stillReceiving = false;
 				}
@@ -274,5 +295,58 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	//update 2d byte array to fill file.
+	private boolean updateFile(byte[] buffer)
+	{
+		//figuring out if I'm done reading.
+		byte[] indexArr = new byte[4];
+		byte[] buffZiseArr = new byte[4];
+		byte[] totalLength = new byte[4];
+		for(int x = 0; x < 4; x++)
+		{
+			indexArr[x] = buffer[x + 12];
+			buffZiseArr[x] = buffer[x + 16];
+			totalLength[x] = buffer[x + 20];
+		}
+
+		ByteBuffer wrap = ByteBuffer.wrap(indexArr);
+		int index = wrap.getInt();
+		ByteBuffer wrap2 = ByteBuffer.wrap(buffZiseArr);
+		int buffsize = wrap2.getInt();
+		ByteBuffer wrap3 = ByteBuffer.wrap(totalLength);
+		int msgSize = wrap3.getInt();
+
+		if(fileBits.length != msgSize)
+		{
+			fileBits = new byte[msgSize];
+		}
+		System.out.println(msgSize);
+		int initIndex = (buffer.length - 24) * index;
+		for(int x = 24; x < buffer.length && x - 24 + initIndex < msgSize; x++)
+		{
+			fileBits[initIndex + x - 24] = buffer[x];
+		}
+		return true;
+	}
+
+	private boolean makeFile()
+	{
+		String output = new String(fileBits);
+		try{
+			PrintStream console = System.out;
+			File file = new File("out.txt");
+			FileOutputStream fos = new FileOutputStream(file);
+			PrintStream ps = new PrintStream(fos);
+			System.setOut(ps);
+			System.out.print(output);
+
+			System.setOut(console);
+			System.out.println(output);
+		}catch(Exception e){
+			return false;
+		}
+		return true;
 	}
 }
