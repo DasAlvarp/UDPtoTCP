@@ -1,4 +1,4 @@
-WHOOP WHOOP!
-YOU CAN READ THIS
-I CAN READ THIS
-WE'RE LITERATE PEOPLE
+New stuff, now with dropped packets!
+Dropped packets? My favorite!
+That's right, we now drop 50% of all packets
+for free! I think this is enough lines to drop a few. Let's go!

@@ -127,6 +127,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 			boolean stillReceiving = true;
 			int floor = 0;
 			DatagramPacket samplePacket = null;
+			boolean samplePacketed = false;
 			int maxTop = floor + mode;
 			while(stillReceiving)
 			{
@@ -141,8 +142,8 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 					}
 					try
 					{
+
 						DatagramPacket packet = new DatagramPacket(window[x - curFloor], window[x - curFloor].length);
-						samplePacket = packet;
 						//don't want a timeout for first packet, but the rest make sense.
 						if(x != curFloor)
 						{
@@ -152,7 +153,10 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						InetAddress client = packet.getAddress();
 						port = packet.getPort();
 						System.out.println("Received'" + new String(window[x - curFloor]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
-		
+						if(!samplePacketed){
+							samplePacketed = true;
+							samplePacket = packet;
+						}
 						//figuring out if I'm done reading.
 						byte[] indexArr = new byte[4];
 						byte[] buffSizeArr = new byte[4];
