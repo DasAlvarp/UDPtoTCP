@@ -214,8 +214,8 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			Path path = Paths.get(filename);
 			byte[] file = Files.readAllBytes(path);
 			int size = file.length;
-			int buffSize = (int)Math.ceil((double)size / ((double)modeParameter - 20.0));
-			System.out.println(buffSize);
+			int buffSize = (int)Math.ceil((double)size / ((double)modeParameter - 24.0));
+			System.out.println("file size:" + size + "\nbuffer size " + buffSize);
 			byte [][] wholeBuffer = new byte[buffSize][(int)modeParameter];//20 because sectionNum+maxSize+mode. Wasting space, but in this case it doesn't really matter, it's literally ALL 0s if it's this mode.
 			int fileCount = 0;
 			for(int index = 0; index < buffSize; index++){

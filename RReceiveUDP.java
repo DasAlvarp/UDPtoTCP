@@ -326,6 +326,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		}
 		System.out.println(msgSize);
 		int initIndex = (buffer.length - 24) * index;
+		System.out.println("initIndex: " + initIndex);
 		for(int x = 24; x < buffer.length && x - 24 + initIndex < msgSize; x++)
 		{
 			fileBits[initIndex + x - 24] = buffer[x];
@@ -338,7 +339,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		String output = new String(fileBits);
 		try{
 			PrintStream console = System.out;
-			File file = new File("out.txt");
+			File file = new File(filename);
 			FileOutputStream fos = new FileOutputStream(file);
 			PrintStream ps = new PrintStream(fos);
 			System.setOut(ps);
