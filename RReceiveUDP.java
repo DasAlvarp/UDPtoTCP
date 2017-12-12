@@ -119,6 +119,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	//reading with sliding window
 	private boolean recieveWindow()
 	{
+		fileBits = new byte[4];
 		try
 		{
 			UDPSocket socket = new UDPSocket(port);
@@ -132,7 +133,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				int curFloor = floor;
 				int []recieved = new int[mode];
 
-				for(int x = curFloor; (x < curFloor + mode && x <= maxTop); x++)
+				for(int x = curFloor; (x < curFloor + mode && x < maxTop); x++)
 				{
 					for(int y = 0; y < mode; y++)
 					{
@@ -168,11 +169,16 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						//every time we get one, put it in the recieved array.
 						recieved[x - curFloor] = index;
 
+						int oldfloor = floor;
+
 						//can't recieve more than mode packet
 						maxTop = buffsize;
 						//increment floor if we've recieved the next packet, plus process the array
 						floor = getFloor(recieved, mode, x);
-						updateFile(window[x - curFloor]);
+						
+						if(oldfloor != floor)
+							updateFile(window[x - curFloor]);
+	
 						if(floor >= buffsize - 1)
 						{
 							System.out.println(buffsize + "BOOM");
@@ -180,6 +186,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 							x = maxTop + 1;
 							break;
 						}
+
 					}
 					catch(Exception e)
 					{
