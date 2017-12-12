@@ -1,4 +1,4 @@
-1: I am a file to be sent. Hello!
-2: But how many lines make a new thing?
-3: I don't know? Let's find
-4: out. Also, put in short numbers.
+WHOOP WHOOP!
+YOU CAN READ THIS
+I CAN READ THIS
+WE'RE LITERATE PEOPLE

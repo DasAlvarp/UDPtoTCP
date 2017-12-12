@@ -169,15 +169,12 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						//every time we get one, put it in the recieved array.
 						recieved[x - curFloor] = index;
 
-						int oldfloor = floor;
-
 						//can't recieve more than mode packet
 						maxTop = buffsize;
 						//increment floor if we've recieved the next packet, plus process the array
 						floor = getFloor(recieved, mode, x);
 						
-						if(oldfloor != floor)
-							updateFile(window[x - curFloor]);
+						updateFile(window[x - curFloor]);
 	
 						if(floor >= buffsize - 1)
 						{
