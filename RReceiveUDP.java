@@ -14,7 +14,7 @@ import java.io.PrintStream;
 
 public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 	
-	int port = 32456;
+	int port = 123;
 	int mode;
 	long modeParameter;
 	String filename;
@@ -147,6 +147,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 						}
 						socket.receive(packet);
 						InetAddress client = packet.getAddress();
+						port = packet.getPort();
 						System.out.println("Received'" + new String(window[x - curFloor]) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
 		
 						//figuring out if I'm done reading.
@@ -257,6 +258,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 				socket.receive(packet);
 				InetAddress client = packet.getAddress();
+				port = packet.getPort();
 				System.out.println("Received'" + new String(buffer) + "' from " + packet.getAddress().getHostAddress() + " with sender port " + packet.getPort());
 				
 				//figuring out if I'm done reading.

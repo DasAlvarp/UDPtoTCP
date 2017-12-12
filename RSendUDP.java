@@ -10,8 +10,8 @@ import java.nio.file.Path;
 
 public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 {
-	static final String SERVER = "localhost";
-	static final int PORT = 32456;
+	String server = "localhost";
+	int port = 32456;
 
 	int mode;
 	long modeParameter;
@@ -97,6 +97,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 	public boolean setReceiver(InetSocketAddress receiver)
 	{
 		this.receiver = receiver;
+		this.port = receiver.getPort();
 		return true;
 	}
 
@@ -127,7 +128,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			int maxNum = buffer.length;
 			while(shouldSend)
 			{
-				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(SERVER), PORT));
+				socket.send(new DatagramPacket(buffer[packetIndex], buffer[packetIndex].length, InetAddress.getByName(server), port));
 				boolean acked = false;
 
 				byte[] ack = new byte[5];
@@ -171,7 +172,7 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			{
 				for(int x = packetIndex; x < (packetIndex + mode > maxNum?packetIndex + mode:maxNum); x++)
 				{
-					socket.send(new DatagramPacket(buffer[x], buffer[x].length, InetAddress.getByName(SERVER), PORT));
+					socket.send(new DatagramPacket(buffer[x], buffer[x].length, InetAddress.getByName(server), port));
 				}
 
 				byte[] ack = new byte[8];
