@@ -140,6 +140,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 					{
 						recieved[y] = -1;
 					}
+
 					try
 					{
 
@@ -175,8 +176,9 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 
 						//can't recieve more than mode packet
 						maxTop = buffsize;
+
 						//increment floor if we've recieved the next packet, plus process the array
-						floor = getFloor(recieved, mode, x);
+						floor = getFloor(recieved, mode, curFloor);
 						
 						updateFile(window[x - curFloor]);
 	
@@ -231,7 +233,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		{
 			if(arr[x] != -1)
 			{
-				if(arr[x] >= index)
+				if(arr[x] > index)
 				{
 					pastIndex++;
 				}
@@ -248,7 +250,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 		int count2 = 0;
 		for(int x = 0; x < size; x++)
 		{
-			if(arr[x] >= index){
+			if(arr[x] > index){
 				posIndex[count2] = arr[x];
 				count2++;
 			}
