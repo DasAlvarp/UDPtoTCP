@@ -170,10 +170,9 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 
 						//can't recieve more than mode packet
 						maxTop = buffsize;
-
 						//increment floor if we've recieved the next packet, plus process the array
-						floor = getFloor(recieved, mode, index);
-						
+						floor = getFloor(recieved, mode, x);
+						updateFile(window[x - curFloor]);
 						if(floor >= buffsize - 1)
 						{
 							System.out.println(buffsize + "BOOM");
@@ -189,9 +188,11 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 					}
 				}
 				System.out.println("did a loop " + floor + ", " + maxTop);
-
+				if(floor + 1 >= maxTop){
+					stillReceiving = false;
+				}
 				//floor sent as index, send next #mode (going to pretend that out sliding window is size 3)
-				byte[] ack = sendAck(mode, floor );
+				byte[] ack = sendAck(mode, floor + 1);
 				if(samplePacket != null)
 				{
 					socket.send(new DatagramPacket(ack, ack.length, InetAddress.getByName(samplePacket.getAddress().getHostAddress()), samplePacket.getPort()));
@@ -203,6 +204,7 @@ public class RReceiveUDP implements edu.utulsa.unet.RReceiveUDPI {
 					System.exit(1);
 				}
 			}
+			makeFile();
 			return true;
 		}
 		catch(Exception e)
