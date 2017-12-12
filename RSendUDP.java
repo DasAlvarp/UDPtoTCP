@@ -170,7 +170,13 @@ public class RSendUDP implements edu.utulsa.unet.RSendUDPI
 			int maxNum = buffer.length;
 			while(shouldSend)
 			{
-				for(int x = packetIndex; x < (packetIndex + mode > maxNum?packetIndex + mode:maxNum); x++)
+				int max;
+				if(packetIndex + mode > maxNum){
+					max = maxNum;
+				}else{
+					max = packetIndex + mode;
+				}
+				for(int x = packetIndex; x < max; x++)
 				{
 					socket.send(new DatagramPacket(buffer[x], buffer[x].length, InetAddress.getByName(server), port));
 				}
